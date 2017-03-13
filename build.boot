@@ -3,7 +3,7 @@
 (def description "Clojure DSL for Apache NiFi")
 
 (set-env! :resource-paths #{"resources" "src"}
-          :dependencies   '[[org.clojure/clojure "1.8.0"]
+          :dependencies   '[[org.clojure/clojure "1.7.0"]
                             [org.apache.nifi/nifi-api "1.1.0"]
                             [org.apache.nifi/nifi-processor-utils "1.1.0"]
 
