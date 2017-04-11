@@ -10,6 +10,15 @@ To use this in your project:
 
 API docs: [apidocs](http://htmlpreview.github.io/?https://github.com/big-solutions/clj-nifi/blob/master/doc/api/index.html)
 
+
+## Yet Deployment
+
+add your YAVEN_USERNAME and YAVEN_PASSWORD to your environment, then run the following:
+```
+$ boot build
+$ boot push --repo yaven -f target/clj-nifi-0.1.1-SNAPSHOT.jar
+```
+
 ## See also
 
 - [boot-nifi](https://github.com/big-solutions/boot-nifi) - a Clojure DSL for Apache NiFi
