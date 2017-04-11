@@ -2,16 +2,20 @@
 (def version "0.1.1-SNAPSHOT")
 (def description "Clojure DSL for Apache NiFi")
 
-(set-env! :resource-paths #{"resources" "src"}
+(set-env! :resource-paths #{"resources" "src" "test"}
           :dependencies   '[[org.clojure/clojure "1.8.0"]
                             [org.apache.nifi/nifi-api "1.1.0"]
                             [org.apache.nifi/nifi-processor-utils "1.1.0"]
-                            [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]]
-          :repositories #(conj % ["yaven" {:url "https://yaven.yetanalytics.io/content/repositories/snapshots"
-                                           :username (System/getenv "YAVEN_USERNAME") 
-                                           :password (System/getenv "YAVEN_PASSWORD")}]))
+                            [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]
+                            [adzerk/boot-test "1.2.0" :scope "test"]]
+          ;;:repositories #(conj % ["yaven" {:url "https://yaven.yetanalytics.io/content/repositories/snapshots"
+          ;;                                 :username (System/getenv "YAVEN_USERNAME") 
+          ;;                                 :password (System/getenv "YAVEN_PASSWORD")}])
+          
+          )
 
 (require '[funcool.boot-codeina :refer [apidoc]])
+(require '[adzerk.boot-test :refer :all])
 
 (task-options!
  pom {:project     project
@@ -25,7 +29,9 @@
          :title       (name project)
          :sources     #{"src"}
          :description description}
- push {:repo-map {:url "https://yaven.yetanalytics.io/content/repositories/snapshots"}})
+ ;;push {:repo-map {:url "https://yaven.yetanalytics.io/content/repositories/snapshots"}}
+ 
+ )
 
 (deftask build-pom
   "builds a pom"
