@@ -53,14 +53,15 @@
 
 (deftest queue-size-test ;; since the instance of session is something we only ever see at runtime, we use reify
   (testing "queue-size calls getQueueSize on instance of session"
-    (let [state (atom :not-called)
+    (let [queue (org.apache.nifi.controller.queue.QueueSize. 1 1)
+          state (atom :not-called)
           session (reify org.apache.nifi.processor.ProcessSession
                     (getQueueSize [session] 
                       (do (reset! state :called)
-                       (org.apache.nifi.controller.queue.QueueSize. 1 1))))
+                       queue)))
           result (queue-size session)]
-      (is (-> result (= (org.apache.nifi.controller.queue.QueueSize. 1 1))))
-      (is (-> @state (= :called))))))
+      (is (= result queue))
+      (is (= @state :called)))))
 
 
 (deftest init-test
@@ -69,8 +70,8 @@
           session (reify org.apache.nifi.processor.ProcessSession)
           result (init context session)
           {c :context s :session} result]
-      (is (-> c (= context)))
-      (is (-> s (= session))))))
+      (is (= c context))
+      (is (= s session)))))
 
 (deftest adjust-counter-test
   (testing "adjust counter calls .adjustCounter on the session object"
@@ -92,8 +93,8 @@
           result (create {:session session})
           {file :file} result
           ]
-      (is (-> @state (= :called)))
-      (is (-> file (= flow-file))))))
+      (is (= @state :called))
+      (is (= file flow-file)))))
 
 (deftest get-one-test
   (testing "get-one calls .get on the session object"
@@ -105,8 +106,8 @@
                       flow-file))
           result (get-one {:session session})
           {file :file} result]
-      (is (-> @state (= :called)))
-      (is (-> file (= flow-file))))))
+      (is (= @state :called))
+      (is (= file flow-file)))))
 
 
 ;; not sure I'm happy with the multiplicative behavior of this function
@@ -119,8 +120,8 @@
          result (get-batch {:session session} 2)
          [_ last-map] result
          {:keys [file]} last-map]
-      (is (-> result count (= 2))) 
-      (is (-> file (= :ff2))))))
+      (is (= (count result) 2)) 
+      (is (= file :ff2)))))
 
 (deftest get-by-test
   (testing "when .get is called with a file filter, filters results as expected"
@@ -146,11 +147,10 @@
     (let [flow-file (reify org.apache.nifi.flowfile.FlowFile)
           session (reify org.apache.nifi.processor.ProcessSession
                     (penalize [_ ff]
-                      ff
-                      ))
+                      ff))
           result (penalize {:session session :file flow-file})
           {penalized-file :file} result]
-      (is (-> penalized-file (= flow-file))))))
+      (is (= penalized-file flow-file)))))
 
 
 (deftest remove-file-test
@@ -161,7 +161,7 @@
                       ff))
           result (remove-file {:session session :file flow-file})
           {removed-file :file} result]
-      (is (-> removed-file (= flow-file))))))
+      (is (= removed-file flow-file)))))
 
 (deftest clone-test
   (testing ".clone is given arguments as expected"
@@ -170,12 +170,12 @@
         size 1
         session (reify org.apache.nifi.processor.ProcessSession
                   (clone [_ ff]
-                    (is (-> ff (= flow-file)))
+                    (is (= ff flow-file))
                     ff)
                   (clone [_ ff o s]
-                    (is (-> ff (= flow-file)))
-                    (is (-> o (= offset)))
-                    (is (-> s (= size)))
+                    (is (= ff flow-file))
+                    (is (= o offset))
+                    (is (= s size))
                     ff))]
     (clone {:session session} flow-file)
     (clone {:session session} flow-file offset size))))
@@ -186,11 +186,10 @@
         value "bar"
         session (reify org.apache.nifi.processor.ProcessSession
                   (putAttribute [_ ff k v]
-                    (is (-> ff (= flow-file)))
-                    (is (-> k (= key)))
-                    (is (-> v (= value)))
-                    ff
-                    ))]
+                    (is (= ff flow-file))
+                    (is (= k key))
+                    (is (= v value))
+                    ff))]
     (put-attribute {:session session :file flow-file} key value)))
 
 
@@ -199,8 +198,8 @@
         key "foo"
         session (reify org.apache.nifi.processor.ProcessSession
                   (removeAttribute [_ ff k]
-                    (is (-> ff (= flow-file)))
-                    (is (-> k (= key)))
+                    (is (= ff flow-file))
+                    (is (= k key))
                     ff
                     ))]
     (remove-attribute {:session session :file flow-file} key)))
@@ -213,8 +212,8 @@
                   (^org.apache.nifi.flowfile.FlowFile removeAllAttributes [^org.apache.nifi.processor.ProcessSession s 
                                                                            ^org.apache.nifi.flowfile.FlowFile ff 
                                                                            ^java.util.Set k]
-                    (is (-> ff (= flow-file)))
-                    (is (-> k (= ks)))
+                    (is (= ff flow-file))
+                    (is (= k ks))
                     ff))]
     (remove-attributes {:session session :file flow-file} ks)))
 
@@ -239,14 +238,14 @@
         _ (-> (output-callback contents)
                 (.process out))
         result (.toString out)]
-    (is (-> result (= contents)))))
+    (is (= result contents))))
   (testing "when contents is a byte array..."
    (let [contents (.getBytes "foo")
         out (ByteArrayOutputStream.) 
         _ (-> (output-callback contents)
                 (.process out))
         result (.toString out)]
-    (is (-> result (= "foo"))))))
+    (is (= result "foo")))))
 
 
 (deftest write-test
@@ -257,7 +256,7 @@
        session (reify org.apache.nifi.processor.ProcessSession
                  (^FlowFile write [_ ^FlowFile ff ^OutputStreamCallback cb]
                    (do (.process cb out) ;; need to process the callback to see what it holds
-                    (is (-> flow-file (= ff))))
+                    (is (= flow-file ff)))
                     (is (-> out (.toString) (= "foo"))) 
                   ff))]
     (write {:file flow-file :session session} contents))))
@@ -270,7 +269,7 @@
        session (reify org.apache.nifi.processor.ProcessSession
                  (^FlowFile append [_ ^FlowFile ff ^OutputStreamCallback cb]
                    (do (.process cb out) ;; need to process the callback to see what it holds
-                    (is (-> flow-file (= ff))))
+                    (is (= flow-file ff)))
                     (is (-> out (.toString) (= "foo"))) 
                   ff))]
     (append {:file flow-file :session session} contents))))
@@ -284,8 +283,8 @@
           flow-file (reify org.apache.nifi.flowfile.FlowFile)
           session (reify org.apache.nifi.processor.ProcessSession
                     (^FlowFile importFrom [_ ^java.io.InputStream i ^FlowFile file]
-                      (is (-> file (= flow-file)))
-                      (is (-> i (= in)))
+                      (is (= file flow-file))
+                      (is (= i in))
                       file))]
       (import-from {:session session :file flow-file} in))))
 
@@ -295,8 +294,8 @@
           flow-file (reify org.apache.nifi.flowfile.FlowFile)
           session (reify org.apache.nifi.processor.ProcessSession
                     (^void exportTo [_ ^FlowFile file ^java.io.OutputStream o]
-                      (is (-> file (= flow-file)))
-                      (is (-> o (= out)))
+                      (is (= file flow-file))
+                      (is (= o out))
                       file))]
       (export-to {:session session :file flow-file} out))))
 
@@ -306,8 +305,8 @@
           flow-files [flow-file]
           session (reify org.apache.nifi.processor.ProcessSession
                    (merge [_ sources file]
-                     (is (-> sources (= flow-files)))
-                     (is (-> file (= flow-file)))
+                     (is (= sources flow-files))
+                     (is (= file flow-file))
                      file))]
       (merge-files {:session session :file flow-file} flow-files))))
 
@@ -317,8 +316,8 @@
           rel (relationship :name "success" :description "Success")
           session (reify org.apache.nifi.processor.ProcessSession
                     (^void transfer [_ ^FlowFile file ^Relationship r]
-                      (is (-> file (= flow-file)))
-                      (is (-> r (= rel)))))]
+                      (is (= file flow-file))
+                      (is (= r rel))))]
       (transfer {:session session :file flow-file} rel))))
 
 
