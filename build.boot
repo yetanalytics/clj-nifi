@@ -6,8 +6,6 @@
           :dependencies   '[[org.clojure/clojure "1.8.0"]
                             [org.apache.nifi/nifi-api "1.1.2"]
                             [org.apache.nifi/nifi-processor-utils "1.1.2"]
-                            ;;[org.apache.nifi/nifi-commons "1.1.2"]
-
                             [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]
                             [adzerk/boot-test "1.2.0" :scope "test"]]
           :repositories #(conj % ["yaven" {:url "https://yaven.yetanalytics.io/content/repositories/snapshots"
