@@ -108,6 +108,8 @@
   (assoc scope :file (.append session file
                        (output-callback contents))))
 
+
+;; note to self: need to figure out a way to test this
 (defn with-read [{:keys [session file] :as scope} f & args]
   (let [in (.read session file)
         transformer (or (f in args) identity)]
@@ -115,7 +117,7 @@
 
 (defn import-from
   ([{:keys [session file] :as scope} ^InputStream in]
-   (assoc scope :file (.importFrom session file in)))
+   (assoc scope :file (.importFrom session in file)))
   ([{:keys [session file] :as scope} path keep-original?]
    (assoc scope :file (.importFrom session file path keep-original?))))
 
@@ -129,9 +131,9 @@
 
 (defn merge-files
   ([{:keys [session file] :as scope} sources]
-   (assoc scope :file (.merge session file sources)))
+   (assoc scope :file (.merge session sources file)))
   ([{:keys [session file] :as scope} sources header footer demarcator]
-   (assoc scope :file (.merge session file sources header footer demarcator))))
+   (assoc scope :file (.merge session sources file header footer demarcator))))
 
 (defn transfer
   ([{:keys [session file] :as scope}]
