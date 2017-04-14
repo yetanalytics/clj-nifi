@@ -26,9 +26,7 @@
  apidoc {:version     version
          :title       (name project)
          :sources     #{"src"}
-         :description description}
- ;;push {:repo-map {:url "https://yaven.yetanalytics.io/content/repositories/snapshots"}}
- )
+         :description description})
 
 (deftask build
   "Build and install the project locally."
