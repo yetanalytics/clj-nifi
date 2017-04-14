@@ -1,5 +1,5 @@
 (def project 'com.yetanalytics/clj-nifi)
-(def version "0.1.1-SNAPSHOT")
+(def version "0.1.2-SNAPSHOT")
 (def description "Clojure DSL for Apache NiFi")
 
 (set-env! :resource-paths #{"resources" "src" "test"}
