@@ -1,5 +1,5 @@
 (def project 'com.yetanalytics/clj-nifi)
-(def version "0.1.2-SNAPSHOT")
+(def version "0.1.3-SNAPSHOT")
 (def description "Clojure DSL for Apache NiFi")
 
 (set-env! :resource-paths #{"resources" "src" "test"}
@@ -31,4 +31,4 @@
 (deftask build
   "Build and install the project locally."
   []
-  (comp (pom) (apidoc) (aot :all true) (jar) (install) (target)))
+  (comp (pom) (apidoc) (aot :all true)  (jar) (install) (target)))

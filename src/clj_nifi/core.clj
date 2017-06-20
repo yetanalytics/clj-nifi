@@ -110,10 +110,9 @@
 
 
 ;; note to self: need to figure out a way to test this
-(defn with-read [{:keys [session file] :as scope} f & args]
-  (let [in (.read session file)
-        transformer (or (f in args) identity)]
-    (transformer scope)))
+(defn with-read [{:keys [session file] :as scope} f]
+  (with-open [in (.read session file)] 
+    (f scope in)))
 
 (defn import-from
   ([{:keys [session file] :as scope} ^InputStream in]
